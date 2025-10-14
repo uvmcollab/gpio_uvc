@@ -35,11 +35,13 @@ endtask : run_phase
 task gpio_uvc_driver::drive_sync();
   @(vif.cb_drv);
   vif.cb_drv.gpio_pin <= req.m_gpio_pin;
+    `uvm_info(get_type_name(), {"\n--- DRIVER (GPIO_UVC) ---", req.convert2string()}, UVM_DEBUG)
 endtask : drive_sync
 
 
 task gpio_uvc_driver::drive_async();
   vif.gpio_pin = req.m_gpio_pin;
+    `uvm_info(get_type_name(), {"\n--- DRIVER (GPIO_UVC) ---", req.convert2string()}, UVM_DEBUG)
 
   if (req.m_delay_enable == GPIO_UVC_ITEM_DELAY_ON) begin
     #(req.m_delay_duration_ps * 1ps);
@@ -56,8 +58,7 @@ task gpio_uvc_driver::do_drive();
   end else begin
     drive_sync();
   end
-
-  `uvm_info(get_type_name(), "PUT THE DRIVER CODE HERE", UVM_MEDIUM)
+  
 endtask : do_drive
 
 `endif  // GPIO_UVC_DRIVER_SV
