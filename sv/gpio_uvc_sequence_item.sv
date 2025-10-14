@@ -9,7 +9,7 @@ class gpio_uvc_sequence_item extends uvm_sequence_item;
   rand gpio_uvc_data_t      m_gpio_pin;
   rand gpio_uvc_item_type_e m_trans_type;
   rand int unsigned         m_delay_duration_ps;
-  rand get_uvc_item_delay_e m_delay_enable;
+  rand gpio_uvc_item_delay_e m_delay_enable;
 
   extern function new(string name = "");
 
@@ -63,6 +63,9 @@ function string gpio_uvc_sequence_item::convert2string();
   s = super.convert2string();
   $sformat(s, {s, "\n", "TRANSACTION INFORMATION (GPIO_UVC):"});
   $sformat(s, {s, "\n", "m_gpio_pin = %d"}, m_gpio_pin);
+  $sformat(s, {s, "\n", "m_trans_type = %d"}, m_trans_type);
+  $sformat(s, {s, "\n", "m_delay_duration_ps = %d"}, m_delay_duration_ps);
+  $sformat(s, {s, "\n", "m_delay_enable = %d"}, m_delay_enable);
   return s;
 endfunction : convert2string
 
