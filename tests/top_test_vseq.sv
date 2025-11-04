@@ -11,44 +11,106 @@ class top_test_vseq extends uvm_sequence;
 
   extern function new(string name = "");
 
-  extern task gpio_uvc_seq();
+//  extern task gpio_uvc_seq();
+//  extern task gpio_uvc_rst();
+  extern task gpio_uvc_pulse_rst();
+  extern task gpio_uvc_file(string filename);
   extern task body();
-  constraint iter_c {iter inside {[1:100]};}
+  constraint iter_c {iter inside {[1 : 100]};}
 endclass : top_test_vseq
 
 
 function top_test_vseq::new(string name = "");
   super.new(name);
- // vif =  p_sequencer.m_gpio_sequencer.m_config.vif; 
+  // vif =  p_sequencer.m_gpio_sequencer.m_config.vif; 
 
 endfunction : new
 
 
-task top_test_vseq::gpio_uvc_seq();
-  // Write your sequence here
-   gpio_uvc_sequence_base seq;
-   seq = gpio_uvc_sequence_base::type_id::create("seq");
-   if (!seq.randomize() with {
-      m_trans.m_gpio_pin inside {[10:20]};
-      m_trans.m_trans_type == GPIO_UVC_ITEM_SYNC;
-      m_trans.m_delay_enable == GPIO_UVC_ITEM_DELAY_OFF;
-      }) begin
+// task top_test_vseq::gpio_uvc_seq();
+//   // Write your sequence here
+//   gpio_uvc_sequence_base seq;
+//   seq = gpio_uvc_sequence_base::type_id::create("seq");
+//   if (!seq.randomize() with {
+
+//         m_trans.m_gpio_pin inside {[10 : 20]};
+//         m_trans.m_trans_type == GPIO_UVC_ITEM_SYNC;
+//         m_trans.m_delay_enable == GPIO_UVC_ITEM_DELAY_ON;
+//       //  m_trans.m_align_type == GPIO_UVC_ITEM_ALIGN_TYPE_RISING;
+//       }) begin
+//     `uvm_fatal(get_name(), "Failed to randomize sequence")
+//   end
+//   // Mando las senceucnias que acabo de randomizar haceia el sequencer
+//   // 
+//   seq.start(p_sequencer.m_gpio_data_sequencer);
+// endtask : gpio_uvc_seq
+
+// task top_test_vseq::gpio_uvc_rst();
+//   // Write your sequence here
+//   gpio_uvc_sequence_base seq;
+//   seq = gpio_uvc_sequence_base::type_id::create("seq");
+//   if (!seq.randomize() with {
+//         m_trans.m_gpio_pin == 'b1;
+//         m_trans.m_trans_type == GPIO_UVC_ITEM_SYNC;
+//         m_trans.m_delay_enable == GPIO_UVC_ITEM_DELAY_OFF;
+//        // m_trans.m_align_type == GPIO_UVC_ITEM_ALIGN_TYPE_RISING;
+//       }) begin
+//     `uvm_fatal(get_name(), "Failed to randomize sequence")
+//   end
+//   // Mando las sencuencias que acabo de randomizar hacia el sequencer
+//   // 
+//   seq.start(p_sequencer.m_gpio_rst_sequencer);
+//   seq.m_trans.m_gpio_pin = 'b0;
+//   seq.start(p_sequencer.m_gpio_rst_sequencer);
+
+//   //  seq.m_trans.m_gpio_pin = 'b1;
+//   //  seq.m_trans.m_trans_type = GPIO_UVC_ITEM_ASYNC;
+//   //  seq.m_trans.m_delay_enable = GPIO_UVC_ITEM_DELAY_ON;
+//   //  seq.m_trans.m_delay_duration_ps = 250_000;
+//   //  seq.start(p_sequencer.m_gpio_rst_sequencer);
+
+// endtask : gpio_uvc_rst
+
+task top_test_vseq::gpio_uvc_pulse_rst();
+gpio_uvc_sequence_pulse seq;
+seq = gpio_uvc_sequence_pulse::type_id::create("seq");
+
+if (! seq.randomize() with { 
+    m_pin_assert.m_gpio_pin == 1'b1;
+    m_pin_assert.m_trans_type == GPIO_UVC_ITEM_SYNC;
+    m_pin_assert.m_delay_enable == GPIO_UVC_ITEM_DELAY_OFF;    
+    m_pin_deassert.m_gpio_pin == 1'b0;
+    m_pin_deassert.m_trans_type == GPIO_UVC_ITEM_SYNC;
+    m_pin_deassert.m_delay_enable == GPIO_UVC_ITEM_DELAY_OFF;   
+         }) begin
      `uvm_fatal(get_name(), "Failed to randomize sequence")
    end
-   seq.start(p_sequencer.m_gpio_sequencer);
-endtask : gpio_uvc_seq
+  seq.start(p_sequencer.m_gpio_rst_sequencer);
+endtask: gpio_uvc_pulse_rst
+
+ task top_test_vseq::gpio_uvc_file(string filename);
+ gpio_uvc_sequence_from_file seq;
+ seq = gpio_uvc_sequence_from_file::type_id::create("seq");
+ seq.m_file_name = {`GIT_DIR, filename};
+ seq.start(p_sequencer.m_gpio_data_sequencer);
+ endtask: gpio_uvc_file
 
 
 task top_test_vseq::body();
+  //gpio_uvc_rst();
+  gpio_uvc_pulse_rst();
   // Initial delay
   #(200ns);
 
-  repeat(iter) begin
-    gpio_uvc_seq();
-  end
+  //repeat (iter) begin
+    //gpio_uvc_seq();
+
+    gpio_uvc_file("/sv/seqlib/sample.seq");
+
+  //end
 
   // Drain time 
   #(1000ns);
 endtask : body
 
-`endif // TOP_TEST_VSEQ_SV
+`endif  // TOP_TEST_VSEQ_SV
