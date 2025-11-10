@@ -61,7 +61,7 @@ task  gpio_uvc_monitor::sample_and_report();
     m_trans.m_gpio_pin = vif.gpio_pin & m_config.get_mask();
 
   `uvm_info(get_type_name(), {"\n------ MONITOR (GPIO_UVC) ------\n", m_trans.convert2string()}, UVM_DEBUG)
-  analysis_port.write(m_trans);
+  analysis_port.write(m_trans); //Aqui el monitor lo escribe, activa esta funcion
 endtask : sample_and_report
 
 

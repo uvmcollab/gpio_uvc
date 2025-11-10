@@ -1,6 +1,8 @@
 `ifndef GPIO_UVC_AGENT_SV
 `define GPIO_UVC_AGENT_SV
 
+// Clase hija               // Clase padre
+// La clase hija here todo los metroso, atributos del padre
 class gpio_uvc_agent extends uvm_agent;
 
   `uvm_component_utils(gpio_uvc_agent)
