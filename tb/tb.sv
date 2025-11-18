@@ -1,4 +1,5 @@
 module tb;
+  timeunit 1ns; timeprecision 100ps;
 
   `include "uvm_macros.svh"
   import uvm_pkg::*;
@@ -10,16 +11,9 @@ module tb;
   logic clk_i = 0;
   always #(CLK_PERIOD / 2) clk_i = ~clk_i;
 
-  // Reset signal
-  logic rst_i = 1;
-  initial begin
-    repeat(5) @(posedge clk_i);
-    rst_i = 0;
-  end
-
   // Interface
   gpio_uvc_if gpio_uvc_data_vif (clk_i);
-  gpio_uvc_if gpio_uvc_rst_vif (clk_i);
+  gpio_uvc_if gpio_uvc_rst_vif  (clk_i);
 
   // DUT Instantiation
   buffer dut (

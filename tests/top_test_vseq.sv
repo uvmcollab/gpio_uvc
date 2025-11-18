@@ -6,7 +6,6 @@ class top_test_vseq extends uvm_sequence;
   `uvm_object_utils(top_test_vseq)
   `uvm_declare_p_sequencer(top_vsqr)
 
-  //virtual gpio_uvc_if vif;
   rand int unsigned iter;
 
   extern function new(string name = "");
@@ -111,13 +110,12 @@ task top_test_vseq::body();
 
   repeat (iter) begin
     gpio_uvc_seq();
-
     //gpio_uvc_file("/sv/seqlib/sample.seq");
-
   end
 
   // Drain time 
   #(1000ns);
+
 endtask : body
 
 `endif  // TOP_TEST_VSEQ_SV

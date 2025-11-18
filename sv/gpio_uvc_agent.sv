@@ -1,8 +1,6 @@
 `ifndef GPIO_UVC_AGENT_SV
 `define GPIO_UVC_AGENT_SV
 
-// Clase hija               // Clase padre
-// La clase hija here todo los metroso, atributos del padre
 class gpio_uvc_agent extends uvm_agent;
 
   `uvm_component_utils(gpio_uvc_agent)
@@ -46,18 +44,12 @@ function void gpio_uvc_agent::connect_phase(uvm_phase phase);
   if (m_config.vif == null) begin
     `uvm_fatal(get_name(), "gpio_uvc_uvc virtual interface is not set!")
   end
-//El miembro del objeto de la izquierda apunta
-// al valor o handle del objeto de la derecha”.
-  m_monitor.vif     = m_config.vif;
+
+  m_monitor.vif      = m_config.vif;
   m_monitor.m_config = m_config;
   m_monitor.analysis_port.connect(this.analysis_port);
 
   if (m_config.is_active == UVM_ACTIVE) begin
-    //Conectar el driver con el sequencer real que viene
-    // del environment al hacer la conection
-    //   vsqr.m_gpio_sequencer = m_gpio_uvc_agent.m_sequencer;
-// y entonces el driver recibe las transaccions una por una y 
-// las convierte en señales fisicas 
     m_driver.seq_item_port.connect(m_sequencer.seq_item_export);
     m_driver.vif         = m_config.vif;
     m_driver.m_config    = m_config;
