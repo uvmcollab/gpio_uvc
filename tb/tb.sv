@@ -13,14 +13,14 @@ module tb;
 
   // Interface
   gpio_uvc_if port_rst_vif  (clk_i);
-
+  gpio_uvc_if port_a_vif (clk_i);
 
 
   // DUT Instantiation
   adder dut (
     .clk_i (clk_i),
     .rst_i (port_rst_vif.gpio_pin[0]),
-    .a_i   (),
+    .a_i   (port_a_vif.gpio_pin[7:0]),
     .b_i   (),
     .sum_o  ()
   );
@@ -28,6 +28,8 @@ module tb;
   initial begin
     $timeformat(-12, 0, "ps", 10);
     uvm_config_db #(virtual gpio_uvc_if)::set(null, "uvm_test_top.m_env.m_port_rst_agent", "vif", port_rst_vif );
+    uvm_config_db #(virtual gpio_uvc_if)::set(null, "uvm_test_top.m_env.m_port_a_agent", "vif", port_a_vif );
+
     run_test();
   end
 
