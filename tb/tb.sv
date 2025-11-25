@@ -14,6 +14,7 @@ module tb;
   // Interface
   gpio_uvc_if port_rst_vif  (clk_i);
   gpio_uvc_if port_a_vif (clk_i);
+  gpio_uvc_if port_b_vif (clk_i);
 
 
   // DUT Instantiation
@@ -21,7 +22,7 @@ module tb;
     .clk_i (clk_i),
     .rst_i (port_rst_vif.gpio_pin[0]),
     .a_i   (port_a_vif.gpio_pin[7:0]),
-    .b_i   (),
+    .b_i   (port_b_vif.gpio_pin[7:0]),
     .sum_o  ()
   );
 
@@ -29,7 +30,7 @@ module tb;
     $timeformat(-12, 0, "ps", 10);
     uvm_config_db #(virtual gpio_uvc_if)::set(null, "uvm_test_top.m_env.m_port_rst_agent", "vif", port_rst_vif );
     uvm_config_db #(virtual gpio_uvc_if)::set(null, "uvm_test_top.m_env.m_port_a_agent", "vif", port_a_vif );
-
+    uvm_config_db #(virtual gpio_uvc_if)::set(null, "uvm_test_top.m_env.m_port_b_agent", "vif", port_b_vif );
     run_test();
   end
 
