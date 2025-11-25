@@ -60,7 +60,7 @@ function void top_env::build_phase(uvm_phase phase);
   m_port_a_config = gpio_uvc_config::type_id::create("m_port_a_config");
   m_port_a_config.is_active = UVM_ACTIVE;
   m_port_a_config.gpio_width = 'd8;
-  m_port_a_config.start_value = 'd2;
+  m_port_a_config.start_value = 'd0;
 
   if (!uvm_config_db#(virtual gpio_uvc_if)::get(this, "m_port_a_agent", "vif", m_port_a_config.vif)) begin
     `uvm_fatal(get_name(), "Could not retrieve m_port_a_config from config db")
@@ -74,7 +74,7 @@ function void top_env::build_phase(uvm_phase phase);
   m_port_b_config = gpio_uvc_config::type_id::create("m_port_b_config");
   m_port_b_config.is_active = UVM_ACTIVE;
   m_port_b_config.gpio_width = 'd8;
-  m_port_b_config.start_value = 'd4;
+  m_port_b_config.start_value = 'd0;
 
   if (!uvm_config_db#(virtual gpio_uvc_if)::get(this, "m_port_b_agent", "vif", m_port_b_config.vif)) begin
     `uvm_fatal(get_name(), "Could not retrieve m_port_b_config from config db")
