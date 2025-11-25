@@ -13,6 +13,8 @@ class top_env extends uvm_env;
   gpio_uvc_config   m_port_a_config;
   gpio_uvc_agent    m_port_a_agent;
 
+  gpio_uvc_config   m_port_b_config;
+  gpio_uvc_agent    m_port_b_agent;
 
   top_vsqr          vsqr;
 
@@ -54,15 +56,29 @@ function void top_env::build_phase(uvm_phase phase);
     // ========================== PORT A AGENT ========================== //
   m_port_a_config = gpio_uvc_config::type_id::create("m_port_a_config");
   m_port_a_config.is_active = UVM_ACTIVE;
-  m_port_a_config.gpio_width = 'd1;
+  m_port_a_config.gpio_width = 'd8;
   m_port_a_config.start_value = 'd2;
 
   if (!uvm_config_db#(virtual gpio_uvc_if)::get(this, "m_port_a_agent", "vif", m_port_a_config.vif)) begin
-    `uvm_fatal(get_name(), "Could not retrieve m_port_rst_config from config db")
+    `uvm_fatal(get_name(), "Could not retrieve m_port_a_config from config db")
   end
 
   uvm_config_db #(gpio_uvc_config)::set(this, "m_port_a_agent", "config", m_port_a_config);
   m_port_a_agent = gpio_uvc_agent::type_id::create("m_port_a_agent", this);
+
+
+    // ========================== PORT B AGENT ========================== //
+  m_port_b_config = gpio_uvc_config::type_id::create("m_port_b_config");
+  m_port_b_config.is_active = UVM_ACTIVE;
+  m_port_b_config.gpio_width = 'd8;
+  m_port_b_config.start_value = 'd4;
+
+  if (!uvm_config_db#(virtual gpio_uvc_if)::get(this, "m_port_b_agent", "vif", m_port_b_config.vif)) begin
+    `uvm_fatal(get_name(), "Could not retrieve m_port_b_config from config db")
+  end
+
+  uvm_config_db #(gpio_uvc_config)::set(this, "m_port_b_agent", "config", m_port_b_config);
+  m_port_b_agent = gpio_uvc_agent::type_id::create("m_port_b_agent", this);
 
   // ================================= COVERAGE =============================== //
   //m_coverage  = top_coverage::type_id::create("m_coverage", this);
@@ -80,6 +96,7 @@ function void top_env::connect_phase(uvm_phase phase);
   // ===================== VIRTUAL SEQUENCER CONNECTIONS ====================== //
   vsqr.m_port_rst_sequencer  = m_port_rst_agent.m_sequencer;
   vsqr.m_port_a_sequencer = m_port_a_agent.m_sequencer;
+  vsqr.m_port_b_sequencer = m_port_b_agent.m_sequencer;
 
 
   // ========================= SCOREBOARD CONNECTIONS ========================= //
