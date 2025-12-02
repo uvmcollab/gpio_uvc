@@ -6,13 +6,12 @@ class gpio_uvc_sequence_item extends uvm_sequence_item;
   `uvm_object_utils(gpio_uvc_sequence_item)
 
   // Transaction variables
-  rand gpio_uvc_data_t            m_gpio_pin;  // Random data 
-  rand gpio_uvc_item_type_e       m_trans_type;  // synchronous or asynchronous
-  rand gpio_uvc_item_delay_e      m_delay_enable;  //transaction delay
-  rand int unsigned               m_delay_duration_ps;  // delay duration asyn
-  rand int unsigned               m_delay_cycles;  // number of delay cycles sync
-  rand gpio_uvc_item_align_type_e m_align_type;  // define alignment type, sync 
-
+  rand gpio_uvc_data_t            m_gpio_pin;
+  rand gpio_uvc_item_type_e       m_trans_type;
+  rand gpio_uvc_item_delay_e      m_delay_enable;
+  rand int unsigned               m_delay_duration_ps;
+  rand int unsigned               m_delay_cycles;
+  rand gpio_uvc_item_align_type_e m_align_type;
 
   extern function new(string name = "");
 
@@ -23,7 +22,7 @@ class gpio_uvc_sequence_item extends uvm_sequence_item;
 
   constraint c_delay_duration_ps {soft m_delay_duration_ps inside {[1_000 : 10_000]};}
   constraint c_delay_cycles {soft m_delay_cycles inside {[1 : 10]};}
-  constraint c_align_type {soft m_align_type inside {[0:1]};}
+  //constraint c_align_type {soft m_align_type inside {[0:1]};}
 
 endclass : gpio_uvc_sequence_item
 
@@ -39,11 +38,10 @@ function void gpio_uvc_sequence_item::do_copy(uvm_object rhs);
   super.do_copy(rhs);
   m_gpio_pin          = rhs_.m_gpio_pin;
   m_trans_type        = rhs_.m_trans_type;
-  m_delay_duration_ps = rhs_.m_delay_duration_ps;
   m_delay_enable      = rhs_.m_delay_enable;
+  m_delay_duration_ps = rhs_.m_delay_duration_ps;
   m_delay_cycles      = rhs_.m_delay_cycles;
   m_align_type        = rhs_.m_align_type;
-
 endfunction : do_copy
 
 
@@ -54,8 +52,8 @@ function bit gpio_uvc_sequence_item::do_compare(uvm_object rhs, uvm_comparer com
   result = super.do_compare(rhs, comparer);
   result &= (m_gpio_pin == rhs_.m_gpio_pin);
   result &= (m_trans_type == rhs_.m_trans_type);
-  result &= (m_delay_duration_ps == rhs_.m_delay_duration_ps);
   result &= (m_delay_enable == rhs_.m_delay_enable);
+  result &= (m_delay_duration_ps == rhs_.m_delay_duration_ps);
   result &= (m_delay_cycles == rhs_.m_delay_cycles);
   result &= (m_align_type == rhs_.m_align_type);
 
@@ -74,13 +72,13 @@ function string gpio_uvc_sequence_item::convert2string();
   s = super.convert2string();
   $sformat(s, {s, "\n", "TRANSACTION INFORMATION (GPIO_UVC):"});
   $sformat(s, {s, "\n", "m_gpio_pin = %d"}, m_gpio_pin);
-  $sformat(s, {s, "\n", "m_trans_type = %d"}, m_trans_type);
+  $sformat(s, {s, "\n", "m_trans_type = %s"}, (m_trans_type == GPIO_UVC_ITEM_SYNC) ? "GPIO_UVC_ITEM_SYNC" : "GPIO_UVC_ITEM_ASYNC" );
   $sformat(s, {s, "\n", "m_delay_duration_ps = %d"}, m_delay_duration_ps);
-  $sformat(s, {s, "\n", "m_delay_enable = %d"}, m_delay_enable);
+  $sformat(s, {s, "\n", "m_delay_enable = %s"}, (m_delay_enable == GPIO_UVC_ITEM_DELAY_ON) ? "GPIO_UVC_ITEM_DELAY_ON" : "GPIO_UVC_ITEM_DELAY_OFF");
   $sformat(s, {s, "\n", "m_delay_cycles = %d"}, m_delay_cycles);
-  $sformat(s, {s, "\n", "m_align_type = %d"}, m_align_type);
-
+  $sformat(s, {s, "\n", "m_align_type = %s"},( m_align_type == GPIO_UVC_ITEM_ALIGN_TYPE_RISING ) ? "GPIO_UVC_ITEM_ALING_TYPE_RISING" : "GPIO_UVC_ITEM_ALIGN_TYPE_FALLING" );
   return s;
 endfunction : convert2string
+
 
 `endif  // GPIO_UVC_SEQUENCE_ITEM_SV

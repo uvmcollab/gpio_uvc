@@ -18,7 +18,6 @@ class gpio_uvc_monitor extends uvm_monitor;
   extern task do_mon();
   extern task sample_and_report();
 
-
 endclass : gpio_uvc_monitor
 
 
@@ -33,35 +32,28 @@ endfunction : build_phase
 
 
 task gpio_uvc_monitor::run_phase(uvm_phase phase);
-//m_trans es una instancid de gpio_uvc_sequence_item
-
   m_trans = gpio_uvc_sequence_item::type_id::create("m_trans");
   do_mon();
 endtask : run_phase
 
 
 task gpio_uvc_monitor::do_mon();
- sample_and_report();
+  // Initial sample
+  sample_and_report();
 
+  // Main monitoring loop
   forever begin
+    // Wait for any change on gpio_pin
     @(vif.gpio_pin);
-    //m.gpio_pin es un miembro de la instancia gpio_uvc_sequence_item
-    //Se copia el valor actual de la señal (vif.gpio_pin) en el campo de la transacción (m_trans.m_gpio_pin).
-    // La transacción contiene una copia del valor en ese momento.
-    //m_trans.m_gpio_pin = vif.gpio_pin & m_config.get_mask();
-    
-    //`uvm_info(get_type_name(), {"\n--- MONITOR (GPIO_UVC) ---", m_trans.convert2string()}, UVM_DEBUG)
-   // analysis_port.write(m_trans);
-      sample_and_report();
+    sample_and_report();
   end
 endtask : do_mon
 
 
-task  gpio_uvc_monitor::sample_and_report();
-    m_trans.m_gpio_pin = vif.gpio_pin & m_config.get_mask();
-
+task gpio_uvc_monitor::sample_and_report();
+  m_trans.m_gpio_pin = vif.gpio_pin & m_config.get_mask();
   `uvm_info(get_type_name(), {"\n------ MONITOR (GPIO_UVC) ------\n", m_trans.convert2string()}, UVM_DEBUG)
-  analysis_port.write(m_trans); //Aqui el monitor lo escribe, activa esta funcion
+  analysis_port.write(m_trans);
 endtask : sample_and_report
 
 

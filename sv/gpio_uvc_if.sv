@@ -9,12 +9,12 @@ interface gpio_uvc_if (
   
   gpio_uvc_data_t gpio_pin;
   
+  // ============================ CLOCKING BLOCKS ============================= //
 
   clocking cb_drv @(posedge clk_i);
     default input #1ns output #1ns;
     output gpio_pin;
   endclocking : cb_drv
-
 
   clocking cb_drv_neg @(negedge clk_i);
     default input #1ns output #1ns;
@@ -23,8 +23,11 @@ interface gpio_uvc_if (
 
   clocking cb_mon @(posedge clk_i);
     default input #1ns output #1ns;
-    
   endclocking : cb_mon
+
+  clocking cb_mon_neg @(negedge clk_i);
+    default input #1ns output #1ns;
+  endclocking : cb_mon_neg
 
 endinterface : gpio_uvc_if
 

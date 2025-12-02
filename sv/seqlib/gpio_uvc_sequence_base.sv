@@ -19,9 +19,9 @@ endfunction : new
 
 
 task gpio_uvc_sequence_base::body();
-//Tengo un ítem listo, espera a que el driver te lo pida.
   start_item(m_trans);
   finish_item(m_trans);
 endtask : body
+
 
 `endif  // GPIO_UVC_SEQUENCE_BASE_SV

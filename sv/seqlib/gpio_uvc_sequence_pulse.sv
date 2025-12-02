@@ -23,18 +23,13 @@ endfunction : new
 
 
 task gpio_uvc_sequence_pulse::body();
+  // Configure assert transaction
   start_item(m_pin_assert);
   finish_item(m_pin_assert);
-
+  // Configure deassert transaction
   start_item(m_pin_deassert);
   finish_item(m_pin_deassert);
-
-  start_item(m_pin_assert);
-  finish_item(m_pin_assert);
-  
-  start_item(m_pin_deassert);
-  finish_item(m_pin_deassert);
-  
 endtask : body
+
 
 `endif // GPIO_UVC_SEQUENCE_PULSE_SV
