@@ -23,7 +23,7 @@ class top_env extends uvm_env;
 
   top_scoreboard    m_scoreboard;
 
-  //top_coverage      m_coverage;
+  top_coverage      m_coverage;
 
   extern function new(string name, uvm_component parent);
 
@@ -97,7 +97,7 @@ function void top_env::build_phase(uvm_phase phase);
   m_port_c_agent = gpio_uvc_agent::type_id::create("m_port_c_agent", this);
 
   // ================================= COVERAGE =============================== //
-  //m_coverage  = top_coverage::type_id::create("m_coverage", this);
+  m_coverage  = top_coverage::type_id::create("m_coverage", this);
 
   // =============================== SCOREBOARD =============================== //
   m_scoreboard = top_scoreboard::type_id::create("m_scoreboard", this);
@@ -121,10 +121,10 @@ function void top_env::connect_phase(uvm_phase phase);
   m_port_b_agent.analysis_port.connect(m_scoreboard.port_b_imp_export);
   m_port_c_agent.analysis_port.connect(m_scoreboard.port_c_imp_export);
 
-  //m_gpio_rst_sequencer.analysis_port.connect(m_scoreboard.gpio_rst_imp_export);
-
   // =========================== COVERAGE CONNECTIONS ========================= //
-  //(m_gpio_uvc_data_agent.analysis_port.connect(m_coverage.gpio_data_imp_export);
+  m_port_a_agent.analysis_port.connect(m_coverage.port_a_imp_export);
+  m_port_b_agent.analysis_port.connect(m_coverage.port_b_imp_export);
+  m_port_c_agent.analysis_port.connect(m_coverage.port_c_imp_export);
 
 endfunction : connect_phase
 
