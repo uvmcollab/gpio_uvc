@@ -13,7 +13,7 @@
 
 # ===============================  VARIABLES  =================================
 # Miscellaneous variables
-CUR_DATE   := $(shell date +%Y-%m-%d_%H-%M-%S) # Guardar la fecha para cada simulacion
+CUR_DATE    = $(shell date +%Y-%m-%d_%H-%M-%S)
 # := es una variable que no debe ponerse
 
 # Directories
@@ -22,7 +22,6 @@ UVM_DIR := $(GIT_DIR)#Directorio UVM
 ROOT_DIR := $(CURDIR)# Directorio Actual = PWD
 RUN_DIR := $(ROOT_DIR)/sim
 LOGS_DIR := $(ROOT_DIR)/logs
-#WDB_DIR := $(ROOT_DIR)/wdb
 COV_DIR := $(ROOT_DIR)/cov
 SCRIPTS_DIR := $(UVM_DIR)/scripts
 VERDI_DIR := $(SCRIPTS_DIR)/verdi
@@ -37,14 +36,17 @@ VERBOSITY ?= UVM_DEBUG
 SEED ?=3
 VCS_DEFINES ?= +define+GIT_DIR=\"$(UVM_DIR)\"
 SIMV_ARGS ?=
+COV_NAME ?= simv_cov
 
 #Simulation mode
 GUI_MODE ?= false
 RUN_FLAGS ?= 
 
 #Code coverage
-CODE_COV ?= false
-COV_FLAGS ?=
+ENABLE_CODE_COV  ?= true
+COV_FLAGS_COMMON ?= -cm line+cond+fsm+branch
+COV_FLAGS_VCS    ?=
+COV_FLAGS_SIMV   ?=
 
 # ================================  CONTROL  ==================================
 # Simulation mode switch
@@ -52,9 +54,10 @@ ifeq ($(GUI_MODE),true)
 	RUN_FLAGS = -gui=verdi &
 endif
 
-# Code Coverage switch
-ifeq ($(CODE_COV),true)
-	COV_FLAGS += -cm line+tgl
+# Code Coverage switch [true, false]
+ifeq ($(ENABLE_CODE_COV),true)
+	COV_FLAGS_VCS  = $(COV_FLAGS_COMMON) -cm_dir $(RUN_DIR)/$(COV_NAME) 
+	COV_FLAGS_SIMV = $(COV_FLAGS_COMMON)
 endif
 
 # ==============================  TOOLS SETUP  ================================
@@ -79,25 +82,25 @@ VCS_FLAGS = -full64 -sverilog -ntb_opts uvm-1.2\
 			-top tb \
 			-j8 \
 			$(VCS_DEFINES) \
-			$(COV_FLAGS)
+			$(COV_FLAGS_VCS)
 
 SIMV_FLAGS = +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=$(VERBOSITY) \
 			-l $(LOGS_DIR)/$(CUR_DATE)_simv.log \
 			+UVM_TR_RECORD +UVM_LOG_RECORD +UVM_NO_RELNOTES \
 			+UVM_VERDI_TRACE=HIER+RAL+TLM \
 			$(SIMV_ARGS) \
-			$(COV_FLAGS) \
+			$(COV_FLAGS_SIMV) \
 			-ucli -do  $(UVM_DIR)/run.tcl \
 			$(RUN_FLAGS)
 
-URG_FLAGS = -dir simv.vdb -format both \
-			-log $(LOGS_DIR)/cov.log \
+URG_FLAGS = -full64 -dir $(COV_NAME).vdb -format both \
+			-log $(LOGS_DIR)/$(CUR_DATE)_cov.log \
 			-report $(COV_DIR)
 
 #VERDI configuration
 VERDI_FLAGS = -ssf novas.fsdb -dbdir simv.daidir -nologo -q
 VERDI_PLAY  = -play $(VERDI_FILE)
-VERDI_COV   = -cov -covdir simv.vdb -nologo -q
+VERDI_COV   = -cov -covdir $(COV_NAME).vdb -nologo -q
 
 # Colors
 C_RED := \033[31m
