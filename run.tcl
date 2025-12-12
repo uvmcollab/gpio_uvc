@@ -1,7 +1,7 @@
 ##=============================================================================
 ## [Filename]       run.tcl
 ## [Project]        gpio_uvc
-## [Author]         Ciro Bermudez - cirofabian.bermudezmarquez@ba.infn.it
+## [Author]         Ciro Bermudez - cirofabian.bermudez@gmail.com
 ## [Language]       Tcl (Tool Command Language)
 ## [Created]        Nov 2024
 ## [Modified]       -
