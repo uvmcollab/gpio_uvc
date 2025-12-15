@@ -1,4 +1,4 @@
-+incdir+$GPIO_UVC_ROOT/sv
-+incdir+$GPIO_UVC_ROOT/sv/seqlib
-$GPIO_UVC_ROOT/sv/gpio_uvc_pkg.sv
-$GPIO_UVC_ROOT/sv/gpio_uvc_if.sv
++incdir+sv
++incdir+sv/seqlib
+sv/gpio_uvc_pkg.sv
+sv/gpio_uvc_if.sv
