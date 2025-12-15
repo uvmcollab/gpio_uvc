@@ -78,6 +78,151 @@ package top_test_pkg;
 endpackage : top_test_pkg
 ```
 
+**Instantiate `gpio_uvc_if` in the testbench**. Connect the main clock signal.
+Connect the interface with the DUT. The interface internally has a 32-bit
+signal called `gpio_pin`, and the number of bits should match the port index
+size. If you are going to use the UVC as passive use `gpio_pin_passive`
+instead. Add the `gpio_uvc_if` to the uvm_config_db.
+
+```verilog
+module tb;
+  ...
+  // Interface
+  gpio_uvc_if port_rst_vif (clk);
+  gpio_uvc_if port_a_vif (clk);
+  gpio_uvc_if port_c_vif (clk);
+
+  // DUT Instantiation
+  my_dut dut (
+      ...
+      .rst(port_rst_vif.gpio_pin[0]),
+      .a  (port_a_vif.gpio_pin[7:0]),
+      .c  (port_c_vif.gpio_pin_passive[7:0]),
+      ...
+  );
+
+  initial begin
+    ...
+    uvm_config_db#(virtual gpio_uvc_if)::set(null, "uvm_test_top.m_env.m_port_rst_agent", "vif", port_rst_vif);
+    uvm_config_db#(virtual gpio_uvc_if)::set(null, "uvm_test_top.m_env.m_port_a_agent", "vif", port_a_vif);
+    uvm_config_db#(virtual gpio_uvc_if)::set(null, "uvm_test_top.m_env.m_port_c_agent", "vif", port_c_vif);
+    run_test();
+  end
+endmodule : tb
+```
+
+**Instantiate `gpio_uvc_config` and `gpio_uvc_agent` in the Environment (`top_env.sv`).**
+In the `build_phase()` create, configure and add the config object to the `uvm_config_db`. Then, create the agent object. In the `connect_phase()` connect the virtual sequencer members with the appropriate agent sequencer.
+
+```verilog
+class top_env extends uvm_env;
+  ...
+  gpio_uvc_config m_port_rst_config;
+  gpio_uvc_agent  m_port_rst_agent;
+
+  gpio_uvc_config m_port_a_config;
+  gpio_uvc_agent  m_port_a_agent;
+
+  gpio_uvc_config m_port_c_config;
+  gpio_uvc_agent  m_port_c_agent;
+  ...
+endclass : top_env
+
+function void top_env::build_phase(uvm_phase phase);
+  // =============================== M_PORT_RST =============================== //
+  m_port_rst_config = gpio_uvc_config::type_id::create("m_port_rst_config");
+  m_port_rst_config.is_active = UVM_ACTIVE;
+  m_port_rst_config.gpio_width = 1;
+  m_port_rst_config.start_value = 'd1;
+  if ( !uvm_config_db #(virtual gpio_uvc_if)::get(this, "m_port_rst_agent", "vif", m_port_rst_config.vif) ) begin
+    `uvm_fatal(get_name(), "Could not retrieve gpio_uvc_if from config db")
+  end
+  uvm_config_db#(gpio_uvc_config)::set(this, "m_port_rst_agent", "config", m_port_rst_config);
+  m_port_rst_agent = gpio_uvc_agent::type_id::create("m_port_rst_agent", this);
+
+  // ================================ M_PORT_A ================================ //
+  m_port_a_config = gpio_uvc_config::type_id::create("m_port_a_config");
+  m_port_a_config.is_active = UVM_ACTIVE;
+  m_port_a_config.gpio_width = 8;
+  m_port_a_config.start_value = 'd2;
+  if ( !uvm_config_db #(virtual gpio_uvc_if)::get(this, "m_port_a_agent", "vif", m_port_a_config.vif) ) begin
+    `uvm_fatal(get_name(), "Could not retrieve gpio_uvc_if from config db")
+  end
+  uvm_config_db#(gpio_uvc_config)::set(this, "m_port_a_agent", "config", m_port_a_config);
+  m_port_a_agent = gpio_uvc_agent::type_id::create("m_port_a_agent", this);
+
+  ...
+
+  // ================================ M_PORT_C ================================ //
+  m_port_c_config = gpio_uvc_config::type_id::create("m_port_c_config");
+  m_port_c_config.is_active = UVM_PASSIVE;
+  m_port_c_config.gpio_width = 8;
+  m_port_c_config.start_value = '0;
+  if ( !uvm_config_db #(virtual gpio_uvc_if)::get(this, "m_port_c_agent", "vif", m_port_c_config.vif) ) begin
+    `uvm_fatal(get_name(), "Could not retrieve gpio_uvc_if from config db")
+  end
+  uvm_config_db#(gpio_uvc_config)::set(this, "m_port_c_agent", "config", m_port_c_config);
+  m_port_c_agent = gpio_uvc_agent::type_id::create("m_port_c_agent", this);
+endfunction : build_phase
+
+
+function void top_env::connect_phase(uvm_phase phase);
+  vsqr.m_port_rst_sequencer = m_port_rst_agent.m_sequencer;
+  vsqr.m_port_a_sequencer   = m_port_a_agent.m_sequencer;
+  ...
+endfunction : connect_phase
+```
+
+**Add the corresponding sequencers in the Virtual Sequencer (`top_vsqr.sv`)**
+
+```verilog
+class top_vsqr extends uvm_sequencer;
+  ...
+  gpio_uvc_sequencer m_port_rst_sequencer;
+  gpio_uvc_sequencer m_port_a_sequencer;
+  ...
+endclass : top_vsqr
+```
+
+Finally inside the Virtual Sequence (`top_test_vseq.sv`) use one of the
+sequences in the [seqlib](sv/seqlib/) to drive the pins.
+
+### Configuring the transaction
+
+1. Select the **transaction mode**
+
+- Synchronous (Sync)
+- Asynchronous (Async)
+
+**If Synchronous (Sync) is selected:**
+
+2. Select the **aligment type**
+
+- Rising edge
+- Falling edge
+
+3. Select whether **delay is enable**
+
+- Delay OFF
+  - Configuration complete
+- Delay ON
+  1. Select the **number of delay cycles**
+  2. Configuration is complete
+
+**If Synchronous (Async) is selected:**
+
+2. Select wether **delay is enabled**
+
+- Delay ON
+  1. The transaction uses the configured **delay duration in picoseconds**
+  2. Configuration is complete
+- Delay OFF
+  1. Select the **alignment type** at the end of the transaction
+    - Rising edge
+    - Falling edge
+  2. Configuration is complete
+
+  
 ### Example sequences
 
 **1. To drive an active-low synchronous reset with synchronous deassertions:**
