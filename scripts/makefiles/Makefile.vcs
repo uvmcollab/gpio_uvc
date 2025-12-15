@@ -52,7 +52,6 @@ COV_FLAGS_COMMON ?= -cm line+cond+fsm+branch
 COV_FLAGS_VCS    ?=
 COV_FLAGS_SIMV   ?=
 
-
 # ================================  CONTROL  ==================================
 
 # Simulation mode switch [true, fasle]
@@ -93,7 +92,8 @@ VCS_FLAGS = -full64 -sverilog -ntb_opts uvm-1.2 \
 			-top tb \
 			-j8 \
 			$(VCS_DEFINES) \
-			$(COV_FLAGS_VCS)
+			$(COV_FLAGS_VCS) \
+			$(DPI_FILE)
 
 SIMV_FLAGS = +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=$(VERBOSITY) \
 			+UVM_TR_RECORD +UVM_LOG_RECORD +UVM_NO_RELNOTES \
@@ -116,9 +116,10 @@ VERDI_COV      = -cov -covdir $(COV_NAME).vdb -nologo -q
 C_RED := \033[31m
 C_GRE := \033[32m
 C_BLU := \033[34m
+C_LBL := \033[36m
 C_YEL := \033[33m
 C_ORA := \033[38;5;214m
-NC	:= \033[0m 
+NC    := \033[0m 
 
 # Synopsys tools
 SYNOPSYS_TOOLS = vcs urg eman verdi wv
@@ -243,12 +244,6 @@ clean: ## UVM: Remove all simulation files
 clean-logs: ## UVM: Remove logs
 	@echo -e "$(C_ORA)UVM: Removing all logs files$(NC)"
 	rm -rf $(LOGS_DIR)
-#______________________________________________________________________________
-
-.PHONY: clean-regr
-clean-regr: ## UVM: Remove all regression files
-	@echo -e "$(C_ORA)UVM: Removing all regression files$(NC)"
-	rm -rf $(REGR_DIR) $(SPOOL_DIR) $(MERGE_DIR)
 #______________________________________________________________________________
 
 # ================================= INCLUDES ================================= #
