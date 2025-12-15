@@ -3,3 +3,18 @@ work/
 
 # Files
 Makefile
+
+# C++
+bin/
+obj/
+*.o
+*.lib
+
+# Python
+.venv/
+venv/
+
+# Synopsys
+setup_synopsys_eda.tcsh
+setup_synopsys_eda.sh
+*.rc
